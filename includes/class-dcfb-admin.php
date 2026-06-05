@@ -45,13 +45,13 @@ class DCFB_Admin {
         );
     }
 
-    public function enqueue_admin_assets($hook) {
-        if (strpos($hook, 'dcfb') !== false) {
-            wp_enqueue_media();
-            wp_enqueue_style('dcfb-admin', DCFB_PLUGIN_URL . 'admin/css/admin-style.css', array(), DCFB_VERSION);
-            wp_enqueue_script('dcfb-admin', DCFB_PLUGIN_URL . 'admin/js/admin-script.js', array('jquery'), DCFB_VERSION, true);
-        }
+   public function enqueue_admin_assets($hook) {
+    if (strpos($hook, 'dcfb') !== false) {
+        wp_enqueue_media(); // Required for image uploader
+        wp_enqueue_style('dcfb-admin', DCFB_PLUGIN_URL . 'admin/css/admin-style.css', array(), DCFB_VERSION);
+        wp_enqueue_script('dcfb-admin', DCFB_PLUGIN_URL . 'admin/js/admin-script.js', array('jquery'), DCFB_VERSION, true);
     }
+}
 
     public function render_bookings_page() {
         global $wpdb;
@@ -68,20 +68,37 @@ class DCFB_Admin {
     }
 
     public function add_flight() {
-        if (!current_user_can('manage_options') || !wp_verify_nonce($_POST['_wpnonce'], 'dcfb_add_flight')) wp_die('Security check');
-        global $wpdb;
-        $data = array(
-            'flight_name' => sanitize_text_field($_POST['flight_name']),
-            'origin_code' => sanitize_text_field($_POST['origin_code']),
-            'dest_code' => sanitize_text_field($_POST['dest_code']),
-            'price' => !empty($_POST['price']) ? floatval($_POST['price']) : null,
-            'image_url' => esc_url_raw($_POST['image_url']),
-            'is_active' => 1
-        );
-        $wpdb->insert($wpdb->prefix . 'dcfb_flights', $data);
-        wp_redirect(admin_url('admin.php?page=dcfb-flights&msg=added'));
+    if (!current_user_can('manage_options') || !wp_verify_nonce($_POST['_wpnonce'], 'dcfb_add_flight')) {
+        wp_die('Security check failed.');
+    }
+    global $wpdb;
+    $flight_name = sanitize_text_field($_POST['flight_name']);
+    $origin_code = sanitize_text_field($_POST['origin_code']);
+    $dest_code = sanitize_text_field($_POST['dest_code']);
+    $price = !empty($_POST['price']) ? floatval($_POST['price']) : null;
+    $image_url = !empty($_POST['image_url']) ? esc_url_raw($_POST['image_url']) : '';
+
+    if (empty($flight_name) || empty($origin_code) || empty($dest_code)) {
+        wp_redirect(admin_url('admin.php?page=dcfb-flights&msg=error'));
         exit;
     }
+
+    $inserted = $wpdb->insert($wpdb->prefix . 'dcfb_flights', array(
+        'flight_name' => $flight_name,
+        'origin_code' => $origin_code,
+        'dest_code' => $dest_code,
+        'price' => $price,
+        'image_url' => $image_url,
+        'is_active' => 1
+    ));
+
+    if ($inserted) {
+        wp_redirect(admin_url('admin.php?page=dcfb-flights&msg=added'));
+    } else {
+        wp_redirect(admin_url('admin.php?page=dcfb-flights&msg=error'));
+    }
+    exit;
+}
 
     public function delete_flight() {
         if (!current_user_can('manage_options') || !wp_verify_nonce($_GET['_wpnonce'], 'dcfb_delete_flight')) wp_die('Security check');

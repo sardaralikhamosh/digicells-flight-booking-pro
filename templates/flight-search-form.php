@@ -22,7 +22,7 @@
                 <label>Return</label>
                 <input type="text" class="dcfb-return" placeholder="Select date">
             </div>
-            <div class="dcfb-field-group">
+            <div class="dcfb-field-group" style="position: relative;">
                 <label>Travelers & Cabin</label>
                 <div class="dcfb-occupancy-trigger" id="dcfb-occupancy-trigger">
                     <span id="dcfb-occupancy-summary">1 Adult, Economy</span>
