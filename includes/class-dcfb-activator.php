@@ -2,10 +2,11 @@
 class DCFB_Activator {
     public static function activate() {
         global $wpdb;
-        $table_name = $wpdb->prefix . 'dcfb_bookings';
         $charset_collate = $wpdb->get_charset_collate();
 
-        $sql = "CREATE TABLE $table_name (
+        // Bookings table
+        $table_bookings = $wpdb->prefix . 'dcfb_bookings';
+        $sql_bookings = "CREATE TABLE $table_bookings (
             id int(11) NOT NULL AUTO_INCREMENT,
             origin_code varchar(10) NOT NULL,
             origin_name varchar(255) NOT NULL,
@@ -25,15 +26,13 @@ class DCFB_Activator {
             special_requests text,
             booking_date datetime DEFAULT CURRENT_TIMESTAMP,
             status varchar(20) DEFAULT 'pending',
+            flight_id int(11) DEFAULT NULL,
             PRIMARY KEY (id)
         ) $charset_collate;";
 
-        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-        dbDelta($sql);
-
-        // Create agents table
-        $agents_table = $wpdb->prefix . 'dcfb_agents';
-        $sql_agents = "CREATE TABLE $agents_table (
+        // Agents table
+        $table_agents = $wpdb->prefix . 'dcfb_agents';
+        $sql_agents = "CREATE TABLE $table_agents (
             id int(11) NOT NULL AUTO_INCREMENT,
             name varchar(255) NOT NULL,
             email varchar(255) NOT NULL,
@@ -42,7 +41,24 @@ class DCFB_Activator {
             is_active tinyint(1) DEFAULT 1,
             PRIMARY KEY (id)
         ) $charset_collate;";
+
+        // Flights table
+        $table_flights = $wpdb->prefix . 'dcfb_flights';
+        $sql_flights = "CREATE TABLE $table_flights (
+            id int(11) NOT NULL AUTO_INCREMENT,
+            flight_name varchar(255) NOT NULL,
+            origin_code varchar(10) NOT NULL,
+            dest_code varchar(10) NOT NULL,
+            price decimal(10,2) DEFAULT NULL,
+            image_url varchar(500) DEFAULT NULL,
+            is_active tinyint(1) DEFAULT 1,
+            PRIMARY KEY (id)
+        ) $charset_collate;";
+
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        dbDelta($sql_bookings);
         dbDelta($sql_agents);
+        dbDelta($sql_flights);
 
         // Default settings
         add_option('dcfb_admin_email', get_option('admin_email'));

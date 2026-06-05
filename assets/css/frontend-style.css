@@ -72,6 +72,56 @@
     font-size: 24px;
     cursor: pointer;
 }
+
+.dcfb-flight-listings .dcfb-flights-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+}
+.dcfb-flight-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    text-align: center;
+    transition: box-shadow 0.3s;
+}
+.dcfb-flight-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+.dcfb-flight-img { max-width: 100%; height: auto; border-radius: 4px; margin-bottom: 10px; }
+.dcfb-flight-name { font-size: 1.2em; margin: 10px 0; }
+.dcfb-route { color: #666; margin-bottom: 8px; }
+.dcfb-price { font-size: 1.1em; font-weight: bold; color: #0066cc; margin-bottom: 12px; }
+.dcfb-book-now-btn { background: #0066cc; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; }
+.dcfb-book-now-btn:hover { background: #0052a3; }
+
+.dcfb-occupancy-trigger {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.dcfb-popup {
+    position: absolute;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    z-index: 1000;
+    width: 300px;
+    margin-top: 5px;
+}
+.dcfb-popup-content { padding: 15px; }
+.dcfb-popup-row { margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+.dcfb-popup-label { font-weight: bold; width: 40%; }
+.age-hint { font-weight: normal; font-size: 0.8em; color: #666; }
+.dcfb-popup-controls { display: flex; align-items: center; gap: 10px; }
+.dcfb-popup-btn { width: 30px; height: 30px; border-radius: 50%; border: 1px solid #ccc; background: #f9f9f9; cursor: pointer; font-size: 18px; }
+.dcfb-popup-slider { width: 100%; margin-top: 5px; }
+.dcfb-cabin-options { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 5px; width: 100%; }
+.dcfb-popup-done { background: #0066cc; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; width: 100%; margin-top: 10px; }
 @media (max-width: 768px) {
     .dcfb-row { flex-direction: column; }
 }

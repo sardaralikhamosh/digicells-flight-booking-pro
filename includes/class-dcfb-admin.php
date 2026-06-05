@@ -5,6 +5,8 @@ class DCFB_Admin {
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_assets'));
         add_action('admin_post_dcfb_add_agent', array($this, 'add_agent'));
         add_action('admin_post_dcfb_delete_agent', array($this, 'delete_agent'));
+        add_action('admin_post_dcfb_add_flight', array($this, 'add_flight'));
+        add_action('admin_post_dcfb_delete_flight', array($this, 'delete_flight'));
     }
 
     public function add_admin_menus() {
@@ -16,6 +18,14 @@ class DCFB_Admin {
             array($this, 'render_bookings_page'),
             'dashicons-airplane',
             25
+        );
+        add_submenu_page(
+            'dcfb-dashboard',
+            'Flights',
+            'Flights',
+            'manage_options',
+            'dcfb-flights',
+            array($this, 'render_flights_page')
         );
         add_submenu_page(
             'dcfb-dashboard',
@@ -36,8 +46,11 @@ class DCFB_Admin {
     }
 
     public function enqueue_admin_assets($hook) {
-        if (strpos($hook, 'dcfb') === false) return;
-        wp_enqueue_style('dcfb-admin', DCFB_PLUGIN_URL . 'admin/css/admin-style.css', array(), DCFB_VERSION);
+        if (strpos($hook, 'dcfb') !== false) {
+            wp_enqueue_media();
+            wp_enqueue_style('dcfb-admin', DCFB_PLUGIN_URL . 'admin/css/admin-style.css', array(), DCFB_VERSION);
+            wp_enqueue_script('dcfb-admin', DCFB_PLUGIN_URL . 'admin/js/admin-script.js', array('jquery'), DCFB_VERSION, true);
+        }
     }
 
     public function render_bookings_page() {
@@ -45,6 +58,38 @@ class DCFB_Admin {
         $table = $wpdb->prefix . 'dcfb_bookings';
         $bookings = $wpdb->get_results("SELECT * FROM $table ORDER BY booking_date DESC");
         include DCFB_PLUGIN_DIR . 'admin/views/bookings-list.php';
+    }
+
+    public function render_flights_page() {
+        global $wpdb;
+        $table = $wpdb->prefix . 'dcfb_flights';
+        $flights = $wpdb->get_results("SELECT * FROM $table ORDER BY id DESC");
+        include DCFB_PLUGIN_DIR . 'admin/views/flights-list.php';
+    }
+
+    public function add_flight() {
+        if (!current_user_can('manage_options') || !wp_verify_nonce($_POST['_wpnonce'], 'dcfb_add_flight')) wp_die('Security check');
+        global $wpdb;
+        $data = array(
+            'flight_name' => sanitize_text_field($_POST['flight_name']),
+            'origin_code' => sanitize_text_field($_POST['origin_code']),
+            'dest_code' => sanitize_text_field($_POST['dest_code']),
+            'price' => !empty($_POST['price']) ? floatval($_POST['price']) : null,
+            'image_url' => esc_url_raw($_POST['image_url']),
+            'is_active' => 1
+        );
+        $wpdb->insert($wpdb->prefix . 'dcfb_flights', $data);
+        wp_redirect(admin_url('admin.php?page=dcfb-flights&msg=added'));
+        exit;
+    }
+
+    public function delete_flight() {
+        if (!current_user_can('manage_options') || !wp_verify_nonce($_GET['_wpnonce'], 'dcfb_delete_flight')) wp_die('Security check');
+        global $wpdb;
+        $id = intval($_GET['id']);
+        $wpdb->delete($wpdb->prefix . 'dcfb_flights', array('id' => $id));
+        wp_redirect(admin_url('admin.php?page=dcfb-flights&msg=deleted'));
+        exit;
     }
 
     public function render_agents_page() {
